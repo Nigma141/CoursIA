@@ -1,0 +1,189 @@
+def distance(P,Q):
+
+    Q=np.dot(-1,Q)
+
+    R=np.add(P,Q)
+
+    return LA.norm(R,2)
+
+
+
+def get_classes(P,Q):
+
+    n=len(P)
+
+    target=np.zeros(n)
+
+    for i in range(n):
+
+        p=P[i]
+
+        # pour chaque point du dataset calcul le centroïde le plus proche
+
+        dist=[distance(p,Q[j]) for j in range(len(Q))]
+
+        k=np.argmin(dist)
+
+        # défini la classe par le centroïde
+
+        target[i]=int(k)
+
+    return target
+
+
+
+def update(P,target,K):
+
+    n=len(P)
+
+    c=np.zeros((K,3))
+
+    p=np.zeros(K)
+
+    
+
+    for i in range(n):
+
+        index=int(target[i])
+
+        c[index]=np.add(c[index],P[i])
+
+        p[index]=p[index]+1
+
+    q=[(1/p[i])*c[i] for i in range(K)]
+
+    return q
+
+
+
+def split(img,Q,K):
+
+    n,p,_ = img.shape
+
+    res=np.zeros((n,p),dtype=np.float32)
+
+    for i in range(n):
+
+        for j in range(p):
+
+            P=[img[i,j,0],img[i,j,1],img[i,j,2]]
+
+            dist=[distance(P,Q[j]) for j in range(len(Q))]
+
+            res[i,j]=np.argmin(dist)/(K-1)
+
+    return res       
+
+    
+
+def segment(img,K):
+
+    n,p,_ = img.shape
+
+    print(" dim = ",n," ",p)
+
+    data=[]
+
+    for i in range(n):
+
+        for j in range(p):
+
+            data.append([img[i,j,0],img[i,j,1],img[i,j,2]])
+
+    Q=[uniform(0,1) for i in range(K)]
+
+    k=0
+
+    itermax=30
+
+    eps=0.001
+
+    err=np.ones(K)
+
+    while k<itermax and np.min(err)>eps:
+
+        k=k+1
+
+        print("step ",k)
+
+        labels=get_classes(data,Q)
+
+        R=update(data,labels,K)
+
+        err=[LA.norm(Q[i]-R[i]) for i in range(K)]
+
+        Q=R
+
+    return Q
+
+im1 = mpimg.imread("nao2.png")
+
+plt.imshow(im1)
+
+plt.show()
+
+
+
+K = 3
+
+centroids=segment(im1,K)
+
+# print(centroids)
+
+im2=np.asarray(split(im1,centroids,K), dtype=np.float32)
+
+plt.gray()
+
+plt.imshow(im2)
+
+plt.savefig('nao_seg.png')
+
+plt.show()
+
+def split(img,Q,K):
+
+  n,p,_ = img.shape
+
+  res=np.zeros((n,p,3),dtype=np.float32)
+
+  for i in range(n):
+
+      for j in range(p):
+
+          P=[img[i,j,0],img[i,j,1],img[i,j,2]]
+
+          dist=[distance(P,Q[j]) for j in range(len(Q))]
+
+          #res[i,j]=np.argmin(dist)/(K-1)
+
+          index = np.argmin(dist)
+
+          #print(index, Q[index])
+
+          res[i,j] = Q[index]
+
+  return res  
+
+def split(img,Q,K):
+
+  n,p,_ = img.shape
+
+  res=np.zeros((n,p,3),dtype=np.float32)
+
+  for i in range(n):
+
+      for j in range(p):
+
+          P=[img[i,j,0],img[i,j,1],img[i,j,2]]
+
+          dist=[distance(P,Q[j]) for j in range(len(Q))]
+
+          #res[i,j]=np.argmin(dist)/(K-1)
+
+          index = np.argmin(dist)
+
+          #print(index, Q[index])
+
+          res[i,j] = Q[index]
+
+  return res 
