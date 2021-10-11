@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -127,3 +128,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+=======
+# Default ignored files
+/shelf/
+/Cours1.py
+/main.py
+>>>>>>> 33a8533 (ajoutNao)
